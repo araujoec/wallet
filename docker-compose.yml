@@ -1,0 +1,17 @@
+version: "3.8"
+
+networks:
+  cdb-net:
+    name: cdb-net
+    driver: bridge
+
+services:
+  db:
+    image: 'postgres'
+    container_name: 'wallet'
+    environment:
+      - 'POSTGRES_DB=wallet'
+      - 'POSTGRES_PASSWORD=password'
+      - 'POSTGRES_USER=user'
+    ports:
+      - '5433:5432'
