@@ -4,17 +4,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-//@Setter
 @NoArgsConstructor
 public class Paper {
 
-    private String customerDocument;
+    private String id;
+    private Double price;
 
-    private long amount;
-
-    public Paper(String customerDocument, long amount) {
-        this.customerDocument = customerDocument;
-        this.amount = amount;
+    public Paper(String id, Double price) {
+        this.id = id;
+        this.price = price;
     }
 
 }

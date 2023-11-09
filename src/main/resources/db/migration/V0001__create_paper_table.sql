@@ -1,6 +1,5 @@
 CREATE TABLE IF NOT EXISTS paper (
-    id SERIAL NOT NULL,
-    document VARCHAR(11),
-    amount DECIMAL,
+    id VARCHAR(255) NOT NULL,
+    price DECIMAL,
     PRIMARY KEY (id)
 );

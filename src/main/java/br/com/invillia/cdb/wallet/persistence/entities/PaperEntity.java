@@ -14,24 +14,18 @@ import lombok.Setter;
 public class PaperEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "id", nullable = false)
+    private String id;
 
-    @Column(name = "document")
-    private String document;
+    @Column(name = "price", nullable = false)
+    private Double price;
 
-    @Column(name = "amount")
-    private Long amount;
-
-    public PaperEntity(String customerDocument, Long amount) {
-        this.document = customerDocument;
-        this.amount = amount;
+    public PaperEntity(String id, Double price) {
+        this.id = id;
+        this.price = price;
     }
 
-    public static PaperEntity fromDomain(Paper paper) {
-        return new PaperEntity(
-                paper.getCustomerDocument(),
-                paper.getAmount()
-        );
+    public Paper toDomain() {
+        return new Paper(id, price);
     }
 }

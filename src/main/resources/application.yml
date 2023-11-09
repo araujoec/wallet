@@ -1,10 +1,2 @@
 server:
   port: 8081
-
-topic:
-  name: t.cdb.paper-trading
-
-spring:
-  kafka:
-    consumer:
-      group-id: "default"

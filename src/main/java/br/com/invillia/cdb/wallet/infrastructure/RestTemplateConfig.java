@@ -1,15 +1,15 @@
 package br.com.invillia.cdb.wallet.infrastructure;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
-public class KafkaConfig {
+public class RestTemplateConfig {
 
     @Bean
-    public ModelMapper modelMapper() {
-        return new ModelMapper();
+    public RestTemplate getRestTemplate(){
+        return new RestTemplate();
     }
 
 }

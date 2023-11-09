@@ -14,20 +14,11 @@ public class PaperService {
     @Autowired
     private PaperRepository paperRepository;
 
-    public void updateCDB(Paper paper) {
-        log.info("Here too on Paper Service");
-        PaperEntity paperEntity = paperRepository.findByDocument(paper.getCustomerDocument());
-        log.info("passou daqui?");
+    public Paper getPaper(String paperId) {
+        log.info("Getting paper...");
+        PaperEntity paperEntity = paperRepository.findById(paperId).orElseThrow();
 
-        if (paperEntity == null) {
-            log.info("this paper doesn't exist in db");
-            paperEntity = PaperEntity.fromDomain(paper);
-        }else{
-            paperEntity.setAmount(paper.getAmount());
-        }
-
-        log.info("saving paper to db");
-        paperRepository.save(paperEntity);
+        return paperEntity.toDomain();
     }
 
 }
