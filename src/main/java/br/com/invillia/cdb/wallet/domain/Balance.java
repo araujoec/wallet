@@ -21,6 +21,10 @@ public class Balance {
         balance -= price;
     }
 
+    public void receiveCDB(Double price) {
+        balance += price;
+    }
+
     @Override
     public String toString() {
         return "Balance{" +

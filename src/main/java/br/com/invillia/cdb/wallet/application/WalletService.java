@@ -52,4 +52,22 @@ public class WalletService {
         }
     }
 
+    public Wallet sellCDBForCustomer(Customer customer, String operationId) {
+        WalletEntity walletEntity = walletRepository.findByCustomerId(customer.getBalance().getCustomerId());
+        if (walletEntity == null) {
+            log.info("Customer doesn't have any CDB paper to sell.");
+            throw new WalletException(WalletEnumException.NO_CDB_PAPER_TO_SELL);
+        } else {
+            Double totalPaperPrice = walletEntity.getAmount() * paper.getPrice();
+            customer.getBalance().receiveCDB(totalPaperPrice);
+            log.info("Receiving CDB paper sold.");
+
+            Balance balanceUpdated = balanceService.updateBalance(customer.getBalance(), operationId);
+            log.info("Balance updated {}", balanceUpdated);
+
+            walletRepository.delete(walletEntity);
+            log.info("Wallet deleted from database {}", walletEntity.toDomain().toString());
+            return walletEntity.toDomain();
+        }
+    }
 }

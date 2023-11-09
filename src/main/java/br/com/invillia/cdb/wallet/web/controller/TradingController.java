@@ -45,4 +45,19 @@ public class TradingController {
         return ResponseEntity.ok(wallet);
     }
 
+    @Operation(summary = "Sell CDB by customer document",
+            description = "sell all CBD of customer providing the customer's document")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "CBD successfully sold"),
+            @ApiResponse(responseCode = "404", description = "Customer not found")
+    })
+    @PostMapping(value = "/sell")
+    public ResponseEntity<Wallet> sellCDB(
+            @RequestParam("document")
+            String document
+    ) {
+        Wallet wallet = tradingService.sellCDB(document);
+        return ResponseEntity.ok(wallet);
+    }
+
 }

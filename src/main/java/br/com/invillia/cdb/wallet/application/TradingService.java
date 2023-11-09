@@ -38,4 +38,17 @@ public class TradingService {
             return walletService.buyCDBForCustomer(customer, amount, operationId);
         }
     }
+
+    public Wallet sellCDB(String document) {
+        String operationId = UUID.randomUUID().toString();
+        log.info("Operation id: {}", operationId);
+
+        Customer customer = consultationService.getCustomer(document, operationId);
+        if (customer == null) {
+            log.warn("Customer não encontrado para documento {}.", document);
+            throw new TradingException(TradingEnumException.CUSTOMER_NOT_FOUND);
+        } else {
+            return walletService.sellCDBForCustomer(customer, operationId);
+        }
+    }
 }
