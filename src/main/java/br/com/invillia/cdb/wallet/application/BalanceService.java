@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 public class BalanceService {
 
     @Autowired
-    ConsultationService consultationService;
+    RequestCustomerService requestCustomerService;
 
-    public Balance updateBalance(Balance balance, String operationId) {
-        log.info("Updating balance for customer...");
-        return consultationService.updateBalance(balance, operationId);
+    public Balance updateBalance(Balance balance, String transactionId) {
+        log.debug("[{}] Updating balance for customer in customer microservice...", transactionId);
+        return requestCustomerService.updateBalance(balance, transactionId);
     }
 }

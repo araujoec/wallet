@@ -18,37 +18,42 @@ public class TradingService {
     private WalletService walletService;
 
     @Autowired
-    private ConsultationService consultationService;
+    private RequestCustomerService requestCustomerService;
 
     public Wallet buyCDB(String document, Integer amount) {
-        String operationId = UUID.randomUUID().toString();
-        log.info("Operation id: {}", operationId);
+        String transactionId = UUID.randomUUID().toString();
+        log.debug("Buying CDB for customer: document = {}, amount = {}", document, amount);
+        log.info("Transaction id: {}", transactionId);
 
         if (amount <= 0) {
-            log.warn("Quantidade de paper não aceitável. {}", amount);
+            log.warn("[{}] Paper amount equal or lower than zero ({})", transactionId, amount);
             throw new TradingException(TradingEnumException.AMOUNT_EQUAL_OR_LOWER_THAN_ZERO);
         }
 
-        Customer customer = consultationService.getCustomer(document, operationId);
+        log.debug("[{}] Searching for customer in customer microservice...", transactionId);
+        Customer customer = requestCustomerService.getCustomer(document, transactionId);
 
         if (customer == null) {
-            log.warn("Customer não encontrado para documento {}.", document);
+            log.warn("[{}] Customer not found for document {}", transactionId, document);
             throw new TradingException(TradingEnumException.CUSTOMER_NOT_FOUND);
         } else {
-            return walletService.buyCDBForCustomer(customer, amount, operationId);
+            log.debug("[{}] Customer found: {}", transactionId, customer);
+            return walletService.buyCDBForCustomer(customer, amount, transactionId);
         }
     }
 
     public Wallet sellCDB(String document) {
-        String operationId = UUID.randomUUID().toString();
-        log.info("Operation id: {}", operationId);
+        String transactionId = UUID.randomUUID().toString();
+        log.debug("Selling CDBs of customer: document = {}", document);
+        log.info("Transaction id: {}", transactionId);
 
-        Customer customer = consultationService.getCustomer(document, operationId);
+        Customer customer = requestCustomerService.getCustomer(document, transactionId);
         if (customer == null) {
-            log.warn("Customer não encontrado para documento {}.", document);
+            log.warn("[{}] Customer not found for document {}", transactionId, document);
             throw new TradingException(TradingEnumException.CUSTOMER_NOT_FOUND);
         } else {
-            return walletService.sellCDBForCustomer(customer, operationId);
+            log.debug("[{}] Customer found: {}", transactionId, customer);
+            return walletService.sellCDBForCustomer(customer, transactionId);
         }
     }
 }

@@ -19,34 +19,35 @@ import java.util.Map;
 
 @Slf4j
 @Service
-public class ConsultationService {
+public class RequestCustomerService {
 
     @Autowired
     private RestTemplate restTemplate;
 
-    public Customer getCustomer(String document, String operationId) {
-        String url = "http://localhost:8080/customer/get?document={document}&operationId={operationId}";
+    public Customer getCustomer(String document, String transactionId) {
+        String url = "http://localhost:8080/customer/get?document={document}&transactionId={transactionId}";
         Map<String, String> params = new HashMap<>(Collections.singletonMap("document", document));
-        params.put("operationId", operationId);
+        params.put("transactionId", transactionId);
         String jsonCustomer = restTemplate.getForObject(url, String.class, params);
 
         try {
             return new ObjectMapper().readValue(jsonCustomer, Customer.class);
         } catch (JsonProcessingException e) {
-            log.warn("Problema na conversão de JSON para objeto: {}", jsonCustomer);
+            log.warn("[{}] Problem parsing JSON to object: {}", transactionId, jsonCustomer);
             return null;
         }
     }
 
-    public Balance updateBalance(Balance balance, String operationId) {
+    public Balance updateBalance(Balance balance, String transactionId) {
         String url = "http://localhost:8080/balance/update";
         HttpHeaders headers = new HttpHeaders();
-        headers.set("operationId", operationId);
+        headers.set("transactionId", transactionId);
         HttpEntity<Balance> balanceHttpEntity = new HttpEntity<>(balance, headers);
 
         try {
             return restTemplate.postForEntity(new URI(url), balanceHttpEntity, Balance.class).getBody();
         } catch (URISyntaxException e) {
+            log.warn("[{}] Problem with URI syntax: {}", transactionId, url);
             throw new RuntimeException(e);
         }
     }

@@ -16,57 +16,62 @@ import org.springframework.stereotype.Service;
 @Service
 public class WalletService {
 
-//    @Autowired
-//    private PaperService paperService;
+    @Autowired
+    private PaperService paperService;
 
     @Autowired
     private BalanceService balanceService;
 
-//    private final Paper paper = paperService.getPaper("invillia2023");
-
-    private final Paper paper = new Paper("invillia2023", 1.2);
     @Autowired
     WalletRepository walletRepository;
 
-    public Wallet buyCDBForCustomer(Customer customer, Integer amount, String operationId) {
-        Double totalPaperPrice = paper.getPrice() * amount;
+    private Paper getPaper() {
+        return paperService.getPaper("tortuga");
+    }
+
+    public Wallet buyCDBForCustomer(Customer customer, Integer amount, String transactionId) {
+        Double totalPaperPrice = getPaper().getPrice() * amount;
+        log.debug("[{}] Total paper price = {}", transactionId, totalPaperPrice);
 
         if (customer.hasEnoughBalance(totalPaperPrice)) {
-            WalletEntity walletEntity = walletRepository.findByCustomerId(customer.getBalance().getCustomerId());
+            WalletEntity walletEntity = walletRepository.findByCustomerId(customer.getCustomerId());
+
             if (walletEntity == null) {
-                walletEntity = new WalletEntity(customer.getBalance().getCustomerId(), paper.getId(), amount);
+                log.debug("[{}] Creating new wallet for customer...", transactionId);
+                walletEntity = new WalletEntity(customer.getCustomerId(), getPaper().getId(), amount);
             }
+            log.debug("[{}] Wallet: {}", transactionId, walletEntity);
 
-            customer.getBalance().discountCDB(totalPaperPrice);
-            log.info("Discounting paper from customer balance.");
+            customer.deductFromBalance(totalPaperPrice);
+            log.info("[{}] Paper deducted from customer balance", transactionId);
 
-            Balance balanceUpdated = balanceService.updateBalance(customer.getBalance(), operationId);
-            log.info("Balance updated {}", balanceUpdated);
+            Balance balanceUpdated = balanceService.updateBalance(customer.getBalance(), transactionId);
+            log.info("[{}] Balance updated {}", transactionId, balanceUpdated.toString());
 
             walletRepository.save(walletEntity);
-            log.info("Wallet saved for customer {}", walletEntity.toDomain().toString());
+            log.info("[{}] Wallet saved for customer {}", transactionId, walletEntity.toDomain().toString());
             return walletEntity.toDomain();
         } else {
-            log.warn("[{}] Customer doesn't have enough balance to buy this amount of paper.", operationId);
+            log.warn("[{}] Customer doesn't have enough balance to buy this amount of paper", transactionId);
             throw new WalletException(WalletEnumException.NOT_ENOUGH_BALANCE);
         }
     }
 
-    public Wallet sellCDBForCustomer(Customer customer, String operationId) {
-        WalletEntity walletEntity = walletRepository.findByCustomerId(customer.getBalance().getCustomerId());
+    public Wallet sellCDBForCustomer(Customer customer, String transactionId) {
+        WalletEntity walletEntity = walletRepository.findByCustomerId(customer.getCustomerId());
         if (walletEntity == null) {
-            log.info("Customer doesn't have any CDB paper to sell.");
+            log.warn("[{}] Customer doesn't have any CDB paper to sell", transactionId);
             throw new WalletException(WalletEnumException.NO_CDB_PAPER_TO_SELL);
         } else {
-            Double totalPaperPrice = walletEntity.getAmount() * paper.getPrice();
-            customer.getBalance().receiveCDB(totalPaperPrice);
-            log.info("Receiving CDB paper sold.");
+            Double totalPaperPrice = walletEntity.getAmount() * getPaper().getPrice();
+            customer.addToBalance(totalPaperPrice);
+            log.info("[{}] Value of papers added to customer balance", transactionId);
 
-            Balance balanceUpdated = balanceService.updateBalance(customer.getBalance(), operationId);
-            log.info("Balance updated {}", balanceUpdated);
+            Balance balanceUpdated = balanceService.updateBalance(customer.getBalance(), transactionId);
+            log.info("[{}] Balance updated {}", transactionId, balanceUpdated.toString());
 
             walletRepository.delete(walletEntity);
-            log.info("Wallet deleted from database {}", walletEntity.toDomain().toString());
+            log.info("[{}] Wallet deleted from database {}", transactionId, walletEntity.toDomain().toString());
             return walletEntity.toDomain();
         }
     }

@@ -25,6 +25,18 @@ public class Customer {
         return balance.getBalance() >= paper;
     }
 
+    public String getCustomerId() {
+        return balance.getCustomerId();
+    }
+
+    public void deductFromBalance(Double price) {
+        balance.deduct(price);
+    }
+
+    public void addToBalance(Double price) {
+        balance.receive(price);
+    }
+
     @Override
     public String toString() {
         return "Customer{" +

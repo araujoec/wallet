@@ -17,11 +17,11 @@ public class Balance {
         this.balance = balance;
     }
 
-    public void discountCDB(Double price) {
+    void deduct(Double price) {
         balance -= price;
     }
 
-    public void receiveCDB(Double price) {
+    void receive(Double price) {
         balance += price;
     }
 
