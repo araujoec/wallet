@@ -1,10 +1,8 @@
 package br.com.invillia.cdb.wallet.domain;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 public class Paper {
 
     private String id;

@@ -39,7 +39,7 @@ public class Customer {
 
     @Override
     public String toString() {
-        return "Customer{" +
+        return "{" +
                 "name='" + name + '\'' +
                 ", document='" + document + '\'' +
                 ", email='" + email + '\'' +

@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Slf4j
 @Service
 public class WalletService {
@@ -23,24 +25,22 @@ public class WalletService {
     private BalanceService balanceService;
 
     @Autowired
-    WalletRepository walletRepository;
+    private WalletRepository walletRepository;
 
-    private Paper getPaper() {
-        return paperService.getPaper("tortuga");
+
+    private Paper getPaper(String paperId) {
+        return paperService.getPaper(paperId);
     }
 
     public Wallet buyCDBForCustomer(Customer customer, Integer amount, String transactionId) {
-        Double totalPaperPrice = getPaper().getPrice() * amount;
+        Paper paper = getPaper("paper1");
+        Double totalPaperPrice = paper.getPrice() * amount;
         log.debug("[{}] Total paper price = {}", transactionId, totalPaperPrice);
 
         if (customer.hasEnoughBalance(totalPaperPrice)) {
-            WalletEntity walletEntity = walletRepository.findByCustomerId(customer.getCustomerId());
 
-            if (walletEntity == null) {
-                log.debug("[{}] Creating new wallet for customer...", transactionId);
-                walletEntity = new WalletEntity(customer.getCustomerId(), getPaper().getId(), amount);
-            }
-            log.debug("[{}] Wallet: {}", transactionId, walletEntity);
+            log.debug("[{}] Creating new wallet for customer...", transactionId);
+            WalletEntity walletEntity = new WalletEntity(customer.getCustomerId(), paper.getId(), amount);
 
             customer.deductFromBalance(totalPaperPrice);
             log.info("[{}] Paper deducted from customer balance", transactionId);
@@ -52,27 +52,39 @@ public class WalletService {
             log.info("[{}] Wallet saved for customer {}", transactionId, walletEntity.toDomain().toString());
             return walletEntity.toDomain();
         } else {
-            log.warn("[{}] Customer doesn't have enough balance to buy this amount of paper", transactionId);
+            log.error("[{}] Customer doesn't have enough balance to buy this amount of paper", transactionId);
             throw new WalletException(WalletEnumException.NOT_ENOUGH_BALANCE);
         }
     }
 
-    public Wallet sellCDBForCustomer(Customer customer, String transactionId) {
-        WalletEntity walletEntity = walletRepository.findByCustomerId(customer.getCustomerId());
-        if (walletEntity == null) {
-            log.warn("[{}] Customer doesn't have any CDB paper to sell", transactionId);
+    public List<Wallet> sellCDBForCustomer(Customer customer, String transactionId) {
+        List<WalletEntity> walletEntities = walletRepository.findAllByCustomerId(customer.getCustomerId());
+        if (walletEntities.isEmpty()) {
+            log.error("[{}] Customer doesn't have any CDB paper to sell", transactionId);
             throw new WalletException(WalletEnumException.NO_CDB_PAPER_TO_SELL);
         } else {
-            Double totalPaperPrice = walletEntity.getAmount() * getPaper().getPrice();
+            Double totalPaperPrice = getTotalPaperPrice(walletEntities);
             customer.addToBalance(totalPaperPrice);
             log.info("[{}] Value of papers added to customer balance", transactionId);
 
             Balance balanceUpdated = balanceService.updateBalance(customer.getBalance(), transactionId);
             log.info("[{}] Balance updated {}", transactionId, balanceUpdated.toString());
 
-            walletRepository.delete(walletEntity);
-            log.info("[{}] Wallet deleted from database {}", transactionId, walletEntity.toDomain().toString());
-            return walletEntity.toDomain();
+            walletEntities.forEach(
+                    walletEntity -> walletRepository.delete(walletEntity)
+            );
+            log.info("[{}] Wallets of customer {} deleted from database", transactionId, customer.getCustomerId());
+            return walletEntities.stream().map(WalletEntity::toDomain).toList();
         }
     }
+
+    private Double getTotalPaperPrice(List<WalletEntity> walletEntities) {
+        return walletEntities
+                .stream()
+                .map(w ->
+                        w.getAmount() * getPaper(w.getPaperId()).getPrice())
+                .reduce(Double::sum)
+                .get();
+    }
+
 }

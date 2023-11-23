@@ -33,8 +33,8 @@ public class RequestCustomerService {
         try {
             return new ObjectMapper().readValue(jsonCustomer, Customer.class);
         } catch (JsonProcessingException e) {
-            log.warn("[{}] Problem parsing JSON to object: {}", transactionId, jsonCustomer);
-            return null;
+            log.error("[{}] Problem parsing JSON to object: {}", transactionId, jsonCustomer);
+            throw new RuntimeException(e);
         }
     }
 
@@ -47,7 +47,7 @@ public class RequestCustomerService {
         try {
             return restTemplate.postForEntity(new URI(url), balanceHttpEntity, Balance.class).getBody();
         } catch (URISyntaxException e) {
-            log.warn("[{}] Problem with URI syntax: {}", transactionId, url);
+            log.error("[{}] Problem with URI syntax: {}", transactionId, url);
             throw new RuntimeException(e);
         }
     }

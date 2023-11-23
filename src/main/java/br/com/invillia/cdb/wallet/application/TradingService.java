@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -23,7 +24,7 @@ public class TradingService {
     public Wallet buyCDB(String document, Integer amount) {
         String transactionId = UUID.randomUUID().toString();
         log.debug("Buying CDB for customer: document = {}, amount = {}", document, amount);
-        log.info("Transaction id: {}", transactionId);
+        log.trace("Transaction id: {}", transactionId);
 
         if (amount <= 0) {
             log.warn("[{}] Paper amount equal or lower than zero ({})", transactionId, amount);
@@ -34,7 +35,7 @@ public class TradingService {
         Customer customer = requestCustomerService.getCustomer(document, transactionId);
 
         if (customer == null) {
-            log.warn("[{}] Customer not found for document {}", transactionId, document);
+            log.error("[{}] Customer not found for document {}", transactionId, document);
             throw new TradingException(TradingEnumException.CUSTOMER_NOT_FOUND);
         } else {
             log.debug("[{}] Customer found: {}", transactionId, customer);
@@ -42,10 +43,10 @@ public class TradingService {
         }
     }
 
-    public Wallet sellCDB(String document) {
+    public List<Wallet> sellCDB(String document) {
         String transactionId = UUID.randomUUID().toString();
         log.debug("Selling CDBs of customer: document = {}", document);
-        log.info("Transaction id: {}", transactionId);
+        log.trace("Transaction id: {}", transactionId);
 
         Customer customer = requestCustomerService.getCustomer(document, transactionId);
         if (customer == null) {

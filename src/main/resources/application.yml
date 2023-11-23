@@ -1,2 +1,7 @@
 server:
   port: 8081
+
+logging:
+  level:
+    root: INFO
+    br.com.invillia.cdb.wallet: DEBUG

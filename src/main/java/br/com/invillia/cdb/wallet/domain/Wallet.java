@@ -4,7 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Getter
-@Setter
 public class Wallet {
 
     private String customerId;
@@ -19,7 +18,7 @@ public class Wallet {
 
     @Override
     public String toString() {
-        return "Wallet{" +
+        return "{" +
                 "customerId='" + customerId + '\'' +
                 ", paperId='" + paperId + '\'' +
                 ", amount=" + amount +

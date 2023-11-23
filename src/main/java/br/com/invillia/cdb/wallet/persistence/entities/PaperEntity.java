@@ -9,8 +9,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "paper")
 @Getter
-@Setter
-@NoArgsConstructor
 public class PaperEntity {
 
     @Id

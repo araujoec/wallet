@@ -9,8 +9,6 @@ import lombok.Setter;
 @Entity
 @Table(name = "wallet")
 @Getter
-@Setter
-@NoArgsConstructor
 public class WalletEntity {
 
     @Id
@@ -39,5 +37,14 @@ public class WalletEntity {
                 this.paperId,
                 this.amount
         );
+    }
+
+    @Override
+    public String toString() {
+        return "{" +
+                "customerId='" + customerId + '\'' +
+                ", paperId='" + paperId + '\'' +
+                ", amount=" + amount +
+                '}';
     }
 }

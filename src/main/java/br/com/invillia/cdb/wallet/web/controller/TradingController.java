@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 @RequestMapping(value = "trading")
 @Tag(name = "Trading", description = "API for buying and selling CDB")
@@ -37,12 +39,12 @@ public class TradingController {
     @Operation(summary = "Sell CDB by customer document",
             description = "sell all CBD of customer providing the customer's document")
     @PostMapping(value = "/sell")
-    public ResponseEntity<Wallet> sellCDB(
+    public ResponseEntity<List<Wallet>> sellCDB(
             @RequestParam("document")
             String document
     ) {
-        Wallet wallet = tradingService.sellCDB(document);
-        return ResponseEntity.ok(wallet);
+        List<Wallet> wallets = tradingService.sellCDB(document);
+        return ResponseEntity.ok(wallets);
     }
 
 }
