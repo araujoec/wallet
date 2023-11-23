@@ -9,6 +9,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "wallet")
 @Getter
+@NoArgsConstructor
 public class WalletEntity {
 
     @Id

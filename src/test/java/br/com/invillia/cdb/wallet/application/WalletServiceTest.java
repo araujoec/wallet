@@ -115,7 +115,7 @@ class WalletServiceTest {
                 () -> walletService.sellCDBForCustomer(customer, transactionId)
         );
 
-        assertEquals(exception.getMessage(), "Code wallet-exception-002: Cliente não papéis CDB para fazer venda.");
+        assertEquals(exception.getMessage(), "Code wallet-exception-002: Cliente não possui papéis CDB para fazer venda.");
     }
 
     @DisplayName("Sell CDB for customer successfully")
